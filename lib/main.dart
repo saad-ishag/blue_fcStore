@@ -1,11 +1,11 @@
-
+import 'package:blue_fc_store/logic/provider_data.dart';
 import 'package:flutter/material.dart';
 import 'Screens/login_screen.dart';
 import 'Screens/product_screen.dart';
 import 'Screens/store_screen.dart';
 import 'main_page.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
+import 'package:provider/provider.dart';
 import 'Screens/pay_screen.dart';
 
 // the carousel package
@@ -15,7 +15,14 @@ import 'Screens/pay_screen.dart';
 // the icons in the home screen
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ProviderData()),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -23,23 +30,22 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(
-      designSize: Size(720, 1600),
+      designSize: const Size(720, 1600),
       minTextAdapt: true,
       splitScreenMode: true,
-      builder : ()=> MaterialApp(
+      builder: () => MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           fontFamily: 'Cairo',
         ),
         routes: {
-          LoginScreen.id   : (context) => LoginScreen(),
-          MainPage.id    : (context) => const MainPage(),
-          PayScreen.id : (context) => const PayScreen(),
-          StoreScreen.id   : (context) => const StoreScreen(),
-          ProductScreen.id : (context) => ProductScreen(),
+          LoginScreen.id: (context) => LoginScreen(),
+          MainPage.id: (context) => const MainPage(),
+          PayScreen.id: (context) =>  PayScreen(),
+          StoreScreen.id: (context) => const StoreScreen(),
+          ProductScreen.id: (context) => ProductScreen(),
         },
         initialRoute: LoginScreen.id,
-
         builder: (context, widget) {
           ScreenUtil.setContext(context);
           return MediaQuery(
@@ -48,7 +54,6 @@ class MyApp extends StatelessWidget {
             child: widget!,
           );
         },
-
       ),
     );
   }

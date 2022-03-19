@@ -1,32 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-
+import 'package:provider/provider.dart';
+import 'package:blue_fc_store/logic/provider_data.dart';
 import 'tools/rounded_icon.dart';
-
-//TODO use the carousel package to slide the product image
 
 class ProductScreen extends StatefulWidget {
   static String id = 'productScreen';
 
-  ProductScreen({Key? key}) : super(key: key);
+   ProductScreen({Key? key}) : super(key: key);
 
   @override
   State<ProductScreen> createState() => _ProductScreenState();
 }
 
 class _ProductScreenState extends State<ProductScreen> {
-  final List <String> imList = [
-    'https://source.unsplash.com/random?sig=1',
-    'https://source.unsplash.com/random?sig=2',
-    'https://source.unsplash.com/random?sig=3',
-  ];
-
+  Map ? productData = {} ;
   int _current = 0;
+  int amount = 0 ;
+
   final CarouselController _controller = CarouselController();
+
+  void increment(){
+    setState(() {
+      amount++ ;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    productData = ModalRoute.of(context)?.settings.arguments as Map? ;
+    final List<String> imList =
+    [
+      Provider.of<ProviderData>(context).productList[productData!['index']].productImage,
+      productData!['productImage'],
+    ];
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -35,25 +43,27 @@ class _ProductScreenState extends State<ProductScreen> {
         elevation: 0,
         actions: [
           IconButton(
-            icon: Icon(
+            icon: const Icon(
               Icons.arrow_forward_ios_outlined,
               size: 18,
             ),
             color: Colors.black87,
-            onPressed: () {Navigator.pop(context);},
+            onPressed: () {
+              Navigator.pop(context);
+              },
           ),
         ],
       ),
       body: SafeArea(
         child: Container(
-          margin: EdgeInsets.all(35),
+          margin: const EdgeInsets.all(35),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment:CrossAxisAlignment.end,
             children: [
                   Center(
                     child: Container(
-                      margin: EdgeInsets.only(top: 30),
+                      margin: const EdgeInsets.only(top: 30),
                       height: 350,
                       width: 300,
                       child: CarouselSlider(
@@ -65,9 +75,7 @@ class _ProductScreenState extends State<ProductScreen> {
                           aspectRatio: 1,
                           viewportFraction: 1,
                         ),
-                        items: imList.map((item) => Container(
-                          child: Image.network(item,fit: BoxFit.cover,width: 1000,),
-                        ),).toList(),
+                        items: imList.map((item) => Image.network(item,fit: BoxFit.cover,width: 1000,),).toList(),
                       ),
                     ),
                   ),
@@ -79,10 +87,10 @@ class _ProductScreenState extends State<ProductScreen> {
                     child: Container(
                       width: 9.0,
                       height: 9.0,
-                      margin: EdgeInsets.symmetric(vertical: 15.0, horizontal: 4.0),
+                      margin: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 4.0),
                       decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color:  Color(0xff2374A9)
+                          color:  const Color(0xff2374A9)
                               .withOpacity(_current == entry.key ? 1 : 0.2)
                       ),
                     ),
@@ -90,39 +98,35 @@ class _ProductScreenState extends State<ProductScreen> {
                 }).toList(),
               ),
               //TODO some widget here
-              SizedBox(
+              const SizedBox(
                 height: 30,
               ),
               Text(
-                'Product Name',
-                style: TextStyle(
+                productData!['productName'],
+                style: const TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.bold,
                 ),
                 textAlign: TextAlign.end,
               ),
-              SizedBox(
+              const SizedBox(
                 height: 5,
               ),
               Text(
-                '١٥٨,٠٠\$',
-                style: TextStyle(
+                '${productData!['productPrice']}\$',
+                style: const TextStyle(
                   color: Color(0xff2374A9),
                 ),
                 textAlign: TextAlign.end,
               ),
-              SizedBox(height: 15),
+              const SizedBox(height: 15),
               Expanded(
                   child: Text(
-                    'product name product name product name product name '
-                    'product name product name product name product name '
-                    'product name product name product name product name '
-                    'product name product name product name product name '
-                    'product name product name product name product name '
-                        'product name product name product name product name ',
-                style: TextStyle(fontSize: 11,color: Colors.grey),
+                        Provider.of<ProviderData>(context).productList[productData!['index']].productDesc,
+                textAlign: TextAlign.end,
+                style: const TextStyle(fontSize: 20,color: Colors.grey),
               )),
-              SizedBox(
+              const SizedBox(
                 height: 30,
               ),
 
@@ -132,13 +136,14 @@ class _ProductScreenState extends State<ProductScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      RoundedButton(onPressed: (){}, icon: FontAwesomeIcons.minus,),
-                      Text('1'),
-                      RoundedButton(icon: Icons.add, onPressed: (){})
-
+                      RoundedButton(onPressed:
+                        Provider.of<ProviderData>(context).decrement,
+                         icon: FontAwesomeIcons.minus,),
+                      Text('${Provider.of<ProviderData>(context).amount}'),
+                      RoundedButton(icon: Icons.add, onPressed:Provider.of<ProviderData>(context).increment),
                     ],
                   ),
-                  Text(
+                  const Text(
                     'الكمية',
                     style:
                         TextStyle(fontSize: 19, color: Color(0xff2374A9),fontWeight: FontWeight.bold),

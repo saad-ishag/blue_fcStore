@@ -1,9 +1,9 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
 import 'Screens/profile_screen.dart';
 import 'Screens/store_screen.dart';
+import 'package:provider/provider.dart';
 
+import 'logic/provider_data.dart';
 
 class MainPage extends StatefulWidget {
   static const String id = 'home screen';
@@ -17,7 +17,7 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   int currentIndex = 0;
 
-  final screens = [ProfileScreen(),StoreScreen()];
+  final screens = [const ProfileScreen(),const StoreScreen()];
 
   @override
   Widget build(BuildContext context) {
@@ -31,9 +31,10 @@ class _MainPageState extends State<MainPage> {
         showSelectedLabels: false,
         showUnselectedLabels: false,
         selectedItemColor: Colors.lightBlueAccent[500],
-        unselectedItemColor: Color(0xff3A4269).withOpacity(.8),
+        unselectedItemColor: const Color(0xff3A4269).withOpacity(.8),
         elevation: 3,
-        onTap: (index){
+        onTap: (index)async{
+          //await Provider.of<ProviderData>(context,listen: false).getProduct();
           setState(() {
             currentIndex = index ;
           });

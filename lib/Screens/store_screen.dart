@@ -1,13 +1,14 @@
+import 'package:blue_fc_store/Screens/tools/local_product.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:badges/badges.dart';
-
+import '../logic/provider_data.dart';
 import 'pay_screen.dart';
 import 'product_screen.dart';
 import 'tools/basic_product.dart';
+import 'package:provider/provider.dart';
 
-
-enum ProductsType { caps, shirts, accessories, shoes }
+enum ProductsType { caps, shirts, trainings, shoes }
 
 const Color kSelectedColor = Color(0xff2779AB);
 const Color kUnSelectedColor = Color(0xffE9E9E9);
@@ -22,10 +23,15 @@ class StoreScreen extends StatefulWidget {
 
 class _StoreScreenState extends State<StoreScreen> {
   ProductsType selectedProduct = ProductsType.shoes;
-  int itemNumber = 10 ;
+  int  itemNumber = 3 ;
+  int? respondCode ;
+  List<LocalProducts> productCategory = LocalProducts.shoes;
+
+
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -80,11 +86,12 @@ class _StoreScreenState extends State<StoreScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    Products(
+                    BasicProducts(
                       text: 'كابات',
                       onPress: () {
                         setState(() {
-                          itemNumber =1 ;
+                          productCategory = LocalProducts.caps ;
+                          itemNumber =LocalProducts.caps.length ;
                           selectedProduct = ProductsType.caps;
                         });
                       },
@@ -93,25 +100,27 @@ class _StoreScreenState extends State<StoreScreen> {
                           : kUnSelectedColor,
                       textColor: selectedProduct == ProductsType.caps ? Colors.white : Colors.black,
                     ),
-                    Products(
-                      text: 'اكسسوارات',
+                    BasicProducts(
+                      text: 'بناطلين',
                       onPress: () {
                         setState(() {
-                          itemNumber= 2;
-                          selectedProduct = ProductsType.accessories;
+                          productCategory = LocalProducts.trousers;
+                          itemNumber =  LocalProducts.trousers.length;
+                          selectedProduct = ProductsType.trainings;
                         });
                       },
-                      colour: selectedProduct == ProductsType.accessories
+                      colour: selectedProduct == ProductsType.trainings
                           ? kSelectedColor
                           : kUnSelectedColor,
-                        textColor: selectedProduct == ProductsType.accessories ? Colors.white : Colors.black
+                        textColor: selectedProduct == ProductsType.trainings ? Colors.white : Colors.black
                     ),
-                    Products(
+                    BasicProducts(
                       text: 'الأقمصة',
                       onPress: () {
+                        itemNumber = Provider.of<ProviderData>(context,listen: false).productList.length;
+
                         setState(() {
                           selectedProduct = ProductsType.shirts;
-                          itemNumber =5 ;
                         });
                       },
                       colour: selectedProduct == ProductsType.shirts
@@ -119,13 +128,14 @@ class _StoreScreenState extends State<StoreScreen> {
                           : kUnSelectedColor,
                         textColor: selectedProduct == ProductsType.shirts ? Colors.white : Colors.black
                     ),
-                    Products(
+                    BasicProducts(
                         text: 'الأحذية',
                         onPress: () {
                           setState(
                             () {
+                              itemNumber = LocalProducts.shoes.length;
+                              productCategory =LocalProducts.shoes;
                               selectedProduct = ProductsType.shoes;
-                              itemNumber= 10 ;
                             },
                           );
                         },
@@ -139,7 +149,7 @@ class _StoreScreenState extends State<StoreScreen> {
               ),
               const SizedBox(height: 20),
               Expanded(
-                child: StaggeredGrid(itemCount: itemNumber,),
+                child: staggeredView(itemNumber,productCategory),
               ),
             ],
           ),
@@ -147,16 +157,7 @@ class _StoreScreenState extends State<StoreScreen> {
       ),
     );
   }
-}
-
-class StaggeredGrid extends StatelessWidget {
-  const StaggeredGrid({
-    Key? key, required this.itemCount,
-  }) : super(key: key);
-  final int itemCount ;
-
-  @override
-  Widget build(BuildContext context) {
+  Widget staggeredView (int itemCount,List <LocalProducts>productCategory) {
     return StaggeredGridView.countBuilder(
       staggeredTileBuilder: (index) => const StaggeredTile.fit(1),
       crossAxisCount: 2,
@@ -164,80 +165,85 @@ class StaggeredGrid extends StatelessWidget {
       crossAxisSpacing: 10,
       itemCount: itemCount,
       itemBuilder: (context, index) => InkWell(
-        child: buildImageCard(index),
+        child:
+        selectedProduct == ProductsType.shirts ?
+         buildNetworkImageCard(index) : buildLocalImageCard(index,productCategory) ,
         onTap: () {
-          Navigator.pushNamed(context, ProductScreen.id);
+          Navigator.pushNamed(context, ProductScreen.id,arguments: {
+            'productImage': Provider.of<ProviderData>(context,listen: false).productList[index].productImage,
+            'productName' : Provider.of<ProviderData>(context,listen: false).productList[index].productModel ,
+            'productPrice': Provider.of<ProviderData>(context,listen: false).productList[index].productPrice,
+            'index'       : index ,
+
+          });
         },
       ),
     );
   }
-}
 
-Widget buildImageCard(index) {
-  return Card(
-    shadowColor: Colors.black,
-    elevation: 3,
-    // margin: EdgeInsets.zero,
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-    child: Padding(
-      padding: const EdgeInsets.all(10.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          ClipRRect(
-            child: Image.network(
-              'https://source.unsplash.com/random?sig=$index',
-              fit: BoxFit.cover,
+  Widget buildLocalImageCard(index,List<LocalProducts> productCategory) {
+    return Card(
+      shadowColor: Colors.black,
+      elevation: 3,
+      // margin: EdgeInsets.zero,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      child: Padding(
+        padding: const EdgeInsets.all(10.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            ClipRRect(
+              child:productCategory[index].image,
             ),
-          ),
-          Text(
-            'Adidas Shoe',
-            style: TextStyle(fontSize: 15, color: Colors.grey[600]),
-          ),
-          const Text(
-            '\$١٢٥',
-            style:
-                // ignore: unnecessary_const
-                TextStyle(fontSize: 12, color:  Color(0xff499CC6)),
-          ),
-        ],
-      ),
-    ),
-  );
-}
-Widget buildCard(String imageUrl ,String productName ,String productPrice ) {
-  return Card(
-    shadowColor: Colors.black,
-    elevation: 3,
-    // margin: EdgeInsets.zero,
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-    child: Padding(
-      padding: const EdgeInsets.all(10.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          ClipRRect(
-            child: Image.network(
-              imageUrl,
-              fit: BoxFit.cover,
+            Text(
+              productCategory[index].name,
+              style: TextStyle(fontSize: 15, color: Colors.grey[600]),
             ),
-          ),
-          Text(
-            productName,
-            style: TextStyle(fontSize: 15, color: Colors.grey[600]),
-          ),
-           Text(
-            '\$ $productPrice',
-            style:
-            // ignore: unnecessary_const
-            const TextStyle(fontSize: 12, color: Color(0xff499CC6)),
-          ),
-        ],
+             Text(
+              '\$${productCategory[index].price}',
+              style:
+              // ignore: unnecessary_const
+              const TextStyle(fontSize: 12, color:  Color(0xff499CC6)),
+            ),
+          ],
+        ),
       ),
-    ),
-  );
+    );
+  }
+  Widget buildNetworkImageCard(index) {
+    return Card(
+      shadowColor: Colors.black,
+      elevation: 3,
+      // margin: EdgeInsets.zero,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      child: Padding(
+        padding: const EdgeInsets.all(10.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            ClipRRect(
+              child: Image.network(
+                Provider.of<ProviderData>(context).productList[index].productImage,
+                fit: BoxFit.cover,
+              ),
+            ),
+            Text(
+              Provider.of<ProviderData>(context).productList[index].productModel,
+              style: TextStyle(fontSize: 15, color: Colors.grey[600]),
+            ),
+            Text(
+              '\$ ${Provider.of<ProviderData>(context).productList[index].productPrice}',
+              style:
+              // ignore: unnecessary_const
+              const TextStyle(fontSize: 12, color: Color(0xff499CC6)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-class Products extends StatelessWidget {
+class BasicProducts extends StatelessWidget {
   final String text ;
   final Function onPress ;
   final Color colour ;
   final Color textColor ;
 
 
-   const Products({Key? key, required this.text,required this.onPress,required this.colour,required this.textColor}) : super(key: key);
+   const BasicProducts({Key? key, required this.text,required this.onPress,required this.colour,required this.textColor}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

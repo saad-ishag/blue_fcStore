@@ -2,21 +2,23 @@ import 'package:flutter/material.dart';
 class RoundedButton extends StatelessWidget {
 
   final IconData icon ;
-  final Function onPressed ;
+  final dynamic onPressed ;
 
-  const RoundedButton({Key? key, required this.icon,required this.onPressed}) : super(key: key);
+   const RoundedButton({Key? key, required this.icon,required this.onPressed}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return RawMaterialButton(
-      constraints: BoxConstraints.tightFor(
+      constraints: const BoxConstraints.tightFor(
         width: 26.0,
         height: 26.0,
       ),
-      fillColor: Color(0xff2374A9),
-      shape: CircleBorder(),
+      fillColor: const Color(0xff2374A9),
+      shape: const CircleBorder(),
       elevation: 0.0,
       child: Icon(icon,size: 16,color: Colors.white,),
-      onPressed: (){onPressed;},
+      onPressed:
+        onPressed,
+      //when using onPressed as Function it doesn't work ??
     );
   }
 }

@@ -1,12 +1,21 @@
 
+import 'package:blue_fc_store/Screens/tools/rounded_icon.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import 'tools/bought_product.dart';
 
-class PayScreen extends StatelessWidget {
+class PayScreen extends StatefulWidget {
   static const String id = 'pay screen';
 
   const PayScreen({Key? key}) : super(key: key);
+
+  @override
+  State<PayScreen> createState() => _PayScreenState();
+}
+
+class _PayScreenState extends State<PayScreen> {
+  int amount =3 ;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -58,22 +67,27 @@ class PayScreen extends StatelessWidget {
                     child: SingleChildScrollView(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: const [
-                          Divider(
-                            height: 15,
-                            color: Colors.grey,
-                          ),
-                          BoughtProduct(),
-                          Divider(
-                            height: 15,
-                            color: Colors.grey,
-                          ),
-                          BoughtProduct(),
-                          Divider(
-                            height: 15,
-                            color: Colors.grey,
-                          ),
-                          BoughtProduct(),
+                        children: [
+                          BoughtProduct(amount: amount,onMinusPress: (){
+                            setState(() {
+                              amount--;
+                            });
+                          }, onPlusPress: (){
+                            setState(() {
+                              amount++;
+                            });
+                          },),
+                          BoughtProduct(amount: amount, onMinusPress: (){
+                            setState(() {
+                              amount--;
+                            });
+                          }, onPlusPress: (){
+                            setState(() {
+                              amount++;
+                            });
+                          },),
+                          BoughtProduct(amount: amount,),
+                          BoughtProduct(amount: amount,),
                         ],
                       ),
                     ),
@@ -138,7 +152,8 @@ class PayScreen extends StatelessWidget {
                             //TODO '
                             child: ListTile(
                           leading: ElevatedButton.icon(
-                            onPressed: () {},
+                            onPressed: () {
+                            },
                             icon: Padding(
                               padding: const EdgeInsets.only(right: 20),
                               child: Icon(
