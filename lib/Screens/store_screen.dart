@@ -1,36 +1,47 @@
-import 'package:blue_fc_store/Screens/tools/local_product.dart';
+import 'package:blue_fc_store/logic/productChanger.dart';
+import 'package:blue_fc_store/models/local_product.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:badges/badges.dart';
+import '../constants.dart';
 import '../logic/provider_data.dart';
+import 'local_product_screen.dart';
 import 'pay_screen.dart';
 import 'product_screen.dart';
-import 'tools/basic_product.dart';
+import 'tools/product_types.dart';
 import 'package:provider/provider.dart';
-
-enum ProductsType { caps, shirts, trainings, shoes }
-
-const Color kSelectedColor = Color(0xff2779AB);
-const Color kUnSelectedColor = Color(0xffE9E9E9);
+import 'package:transparent_image/transparent_image.dart';
 
 class StoreScreen extends StatefulWidget {
   static const String id = 'Store Screen';
 
   const StoreScreen({Key? key}) : super(key: key);
+
   @override
   State<StoreScreen> createState() => _StoreScreenState();
 }
 
 class _StoreScreenState extends State<StoreScreen> {
-  ProductsType selectedProduct = ProductsType.shoes;
-  int  itemNumber = 3 ;
-  int? respondCode ;
-  List<LocalProducts> productCategory = LocalProducts.shoes;
-
 
 
   @override
+  void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {getProducts();});
+
+   // getProducts();
+
+    super.initState();
+  }
+  void getProducts()async{
+    await Provider.of<ProviderData>(context,listen: false).getProduct();
+  }
+
+  @override
   Widget build(BuildContext context) {
+
+    ProductsType selectedProduct = context.watch<ProductChanger>().selectedProduct;
+    int itemNumber = context.watch<ProductChanger>().itemNumber;
+    List<LocalProducts> productCategory = context.watch<ProductChanger>().productCategory;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -62,13 +73,16 @@ class _StoreScreenState extends State<StoreScreen> {
                     height: 40,
                   )),
                   GestureDetector(
-                    onTap: (){
+                    onTap: () {
                       Navigator.pushNamed(context, PayScreen.id);
                     },
                     child: Badge(
                       position: BadgePosition.topEnd(),
-                      badgeContent: Text('5',style: TextStyle(color: Colors.white,fontSize: 12),),
-                      badgeColor: Color(0xff499CC6),
+                      badgeContent: Text(
+                        '${Provider.of<ProviderData>(context).boughtProducts.length}',
+                        style: const TextStyle(color: Colors.white, fontSize: 12),
+                      ),
+                      badgeColor: const Color(0xff499CC6),
                       child: Icon(
                         Icons.shopping_cart_outlined,
                         size: 25,
@@ -76,7 +90,6 @@ class _StoreScreenState extends State<StoreScreen> {
                       ),
                     ),
                   ),
-
                 ],
               ),
               const SizedBox(height: 20),
@@ -86,70 +99,64 @@ class _StoreScreenState extends State<StoreScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    BasicProducts(
+                    ProductTypes(
                       text: 'كابات',
                       onPress: () {
-                        setState(() {
-                          productCategory = LocalProducts.caps ;
-                          itemNumber =LocalProducts.caps.length ;
-                          selectedProduct = ProductsType.caps;
-                        });
+                        context.read<ProductChanger>().changeToCapsProducts();
                       },
                       colour: selectedProduct == ProductsType.caps
                           ? kSelectedColor
                           : kUnSelectedColor,
-                      textColor: selectedProduct == ProductsType.caps ? Colors.white : Colors.black,
+                      textColor: selectedProduct == ProductsType.caps
+                          ? Colors.white
+                          : Colors.black,
                     ),
-                    BasicProducts(
-                      text: 'بناطلين',
-                      onPress: () {
-                        setState(() {
-                          productCategory = LocalProducts.trousers;
-                          itemNumber =  LocalProducts.trousers.length;
-                          selectedProduct = ProductsType.trainings;
-                        });
-                      },
-                      colour: selectedProduct == ProductsType.trainings
-                          ? kSelectedColor
-                          : kUnSelectedColor,
-                        textColor: selectedProduct == ProductsType.trainings ? Colors.white : Colors.black
-                    ),
-                    BasicProducts(
-                      text: 'الأقمصة',
-                      onPress: () {
-                        itemNumber = Provider.of<ProviderData>(context,listen: false).productList.length;
-
-                        setState(() {
-                          selectedProduct = ProductsType.shirts;
-                        });
-                      },
-                      colour: selectedProduct == ProductsType.shirts
-                          ? kSelectedColor
-                          : kUnSelectedColor,
-                        textColor: selectedProduct == ProductsType.shirts ? Colors.white : Colors.black
-                    ),
-                    BasicProducts(
-                        text: 'الأحذية',
+                    ProductTypes(
+                        text: 'بناطلين',
                         onPress: () {
-                          setState(
-                            () {
-                              itemNumber = LocalProducts.shoes.length;
-                              productCategory =LocalProducts.shoes;
-                              selectedProduct = ProductsType.shoes;
-                            },
-                          );
+                          context.read<ProductChanger>().changeToTrousersProducts();
                         },
-                        colour: selectedProduct == ProductsType.shoes
+                        colour: selectedProduct == ProductsType.trainings
                             ? kSelectedColor
                             : kUnSelectedColor,
-                        textColor: selectedProduct == ProductsType.shoes ? Colors.white : Colors.black ,
+                        textColor: selectedProduct == ProductsType.trainings
+                            ? Colors.white
+                            : Colors.black),
+                    ProductTypes(
+                        text: 'الأقمصة',
+                        onPress: () async {
+
+                         //  TODO why the next line gives me error if i used it
+                          //(error invalid index range )
+                          //Provider.of<ProviderData>(context, listen: false).productList.length-1;
+
+                          context.read<ProductChanger>().changeToShirtProducts();
+
+                        },
+                        colour: selectedProduct == ProductsType.shirts
+                            ? kSelectedColor
+                            : kUnSelectedColor,
+                        textColor: selectedProduct == ProductsType.shirts
+                            ? Colors.white
+                            : Colors.black),
+                    ProductTypes(
+                      text: 'الأحذية',
+                      onPress: () {
+                        context.read<ProductChanger>().changeToShoesProducts();
+                      },
+                      colour: selectedProduct == ProductsType.shoes
+                          ? kSelectedColor
+                          : kUnSelectedColor,
+                      textColor: selectedProduct == ProductsType.shoes
+                          ? Colors.white
+                          : Colors.black,
                     ),
                   ],
                 ),
               ),
               const SizedBox(height: 20),
               Expanded(
-                child: staggeredView(itemNumber,productCategory),
+                child: staggeredView(itemNumber, productCategory),
               ),
             ],
           ),
@@ -157,7 +164,8 @@ class _StoreScreenState extends State<StoreScreen> {
       ),
     );
   }
-  Widget staggeredView (int itemCount,List <LocalProducts>productCategory) {
+
+  Widget staggeredView(int itemCount, List<LocalProducts> productCategory) {
     return StaggeredGridView.countBuilder(
       staggeredTileBuilder: (index) => const StaggeredTile.fit(1),
       crossAxisCount: 2,
@@ -165,23 +173,36 @@ class _StoreScreenState extends State<StoreScreen> {
       crossAxisSpacing: 10,
       itemCount: itemCount,
       itemBuilder: (context, index) => InkWell(
-        child:
-        selectedProduct == ProductsType.shirts ?
-         buildNetworkImageCard(index) : buildLocalImageCard(index,productCategory) ,
+        child: context.read<ProductChanger>().selectedProduct == ProductsType.shirts
+            ? buildNetworkImageCard(index)
+            : buildLocalImageCard(index, productCategory),
         onTap: () {
-          Navigator.pushNamed(context, ProductScreen.id,arguments: {
-            'productImage': Provider.of<ProviderData>(context,listen: false).productList[index].productImage,
-            'productName' : Provider.of<ProviderData>(context,listen: false).productList[index].productModel ,
-            'productPrice': Provider.of<ProviderData>(context,listen: false).productList[index].productPrice,
-            'index'       : index ,
-
-          });
+          context.read<ProductChanger>().selectedProduct == ProductsType.shirts
+              ? Navigator.pushNamed(context, ProductScreen.id, arguments: {
+                  'productImage':
+                      Provider.of<ProviderData>(context, listen: false)
+                          .productList[index]
+                          .productImage,
+                  'productName':
+                      Provider.of<ProviderData>(context, listen: false)
+                          .productList[index]
+                          .productModel,
+                  'productPrice':
+                      Provider.of<ProviderData>(context, listen: false)
+                          .productList[index]
+                          .productPrice,
+                  'index': index,
+                })
+              : Navigator.pushNamed(context, LocalProductScreen.id, arguments: {
+                  'productCategory': productCategory,
+                  'index': index,
+                });
         },
       ),
     );
   }
 
-  Widget buildLocalImageCard(index,List<LocalProducts> productCategory) {
+  Widget buildLocalImageCard(index, List<LocalProducts> productCategory) {
     return Card(
       shadowColor: Colors.black,
       elevation: 3,
@@ -194,23 +215,24 @@ class _StoreScreenState extends State<StoreScreen> {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             ClipRRect(
-              child:productCategory[index].image,
+              child: productCategory[index].image,
             ),
             Text(
               productCategory[index].name,
               style: TextStyle(fontSize: 15, color: Colors.grey[600]),
             ),
-             Text(
+            Text(
               '\$${productCategory[index].price}',
               style:
-              // ignore: unnecessary_const
-              const TextStyle(fontSize: 12, color:  Color(0xff499CC6)),
+                  // ignore: unnecessary_const
+                  const TextStyle(fontSize: 12, color: Color(0xff499CC6)),
             ),
           ],
         ),
       ),
     );
   }
+
   Widget buildNetworkImageCard(index) {
     return Card(
       shadowColor: Colors.black,
@@ -219,25 +241,44 @@ class _StoreScreenState extends State<StoreScreen> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       child: Padding(
         padding: const EdgeInsets.all(10.0),
-        child: Column(
+        child: context.watch<ProviderData>().getProductError?
+        const Center(child: SizedBox(
+          height: 90,
+            width: 90,
+            child: Icon(Icons.error,color: Colors.red,size: 50,)))
+            :Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             ClipRRect(
-              child: Image.network(
-                Provider.of<ProviderData>(context).productList[index].productImage,
-                fit: BoxFit.cover,
+              child: Stack(
+                children: [
+                  const Center(
+                      child: CircularProgressIndicator(
+                    color: Colors.lightBlueAccent,
+                  )),
+                  FadeInImage.memoryNetwork(
+                    fadeInDuration: const Duration(milliseconds: 500),
+                    placeholder: kTransparentImage,
+                    image: Provider.of<ProviderData>(context)
+                        .productList[index]
+                        .productImage,
+                    fit: BoxFit.cover,
+                  ),
+                ],
               ),
             ),
             Text(
-              Provider.of<ProviderData>(context).productList[index].productModel,
+              Provider.of<ProviderData>(context)
+                  .productList[index]
+                  .productModel,
               style: TextStyle(fontSize: 15, color: Colors.grey[600]),
             ),
             Text(
               '\$ ${Provider.of<ProviderData>(context).productList[index].productPrice}',
               style:
-              // ignore: unnecessary_const
-              const TextStyle(fontSize: 12, color: Color(0xff499CC6)),
+                  // ignore: unnecessary_const
+                  const TextStyle(fontSize: 12, color: Color(0xff499CC6)),
             ),
           ],
         ),
@@ -245,7 +286,3 @@ class _StoreScreenState extends State<StoreScreen> {
     );
   }
 }
-
-
-
-

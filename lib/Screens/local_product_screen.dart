@@ -1,4 +1,5 @@
 import 'package:blue_fc_store/Screens/tools/bought_product.dart';
+import 'package:blue_fc_store/models/local_product.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -6,37 +7,32 @@ import 'package:provider/provider.dart';
 import 'package:blue_fc_store/logic/provider_data.dart';
 import 'tools/rounded_icon.dart';
 
-//TODO fix the amount problem
-class ProductScreen extends StatefulWidget {
-  static String id = 'productScreen';
+//TODO fix the amount issue and then change to stateless
+class LocalProductScreen extends StatefulWidget {
+  static String id = 'localProductScreen';
 
-  const ProductScreen({Key? key}) : super(key: key);
+  const LocalProductScreen({Key? key}) : super(key: key);
 
   @override
-  State<ProductScreen> createState() => _ProductScreenState();
+  State<LocalProductScreen> createState() => _LocalProductScreenState();
 }
 
-class _ProductScreenState extends State<ProductScreen> {
+class _LocalProductScreenState extends State<LocalProductScreen> {
   Map? productData = {};
-
-
   final CarouselController _controller = CarouselController();
-
   bool isFavorite = false;
 
   @override
   Widget build(BuildContext context) {
-
     final provider = Provider.of<ProviderData>(context, listen: false);
+    int _current = context.watch<ProviderData>().carouselSliderIndex;
     productData = ModalRoute.of(context)?.settings.arguments as Map?;
-    final List<String> imList = [
-      Provider.of<ProviderData>(context)
-          .productList[productData!['index']]
-          .productImage,
-      //two ways to get the same image
-      productData!['productImage'],
+    List<LocalProducts> productCategory = productData!['productCategory'];
+    int index = productData!['index'];
+    final List<Image> imList = [
+      productCategory[index].image,
+      productCategory[index].image,
     ];
-    int _current = context.read<ProviderData>().carouselSliderIndex;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -81,11 +77,7 @@ class _ProductScreenState extends State<ProductScreen> {
                     ),
                     items: imList
                         .map(
-                          (item) => Image.network(
-                            item,
-                            fit: BoxFit.cover,
-                            width: MediaQuery.of(context).size.width,
-                          ),
+                          (item) => item,
                         )
                         .toList(),
                   ),
@@ -113,7 +105,7 @@ class _ProductScreenState extends State<ProductScreen> {
                 height: 30,
               ),
               Text(
-                productData!['productName'],
+                productCategory[index].name,
                 style: const TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.bold,
@@ -124,7 +116,7 @@ class _ProductScreenState extends State<ProductScreen> {
                 height: 5,
               ),
               Text(
-                '${productData!['productPrice']}\$',
+                '${productCategory[index].price}\$',
                 style: const TextStyle(
                   color: Color(0xff2374A9),
                 ),
@@ -133,9 +125,7 @@ class _ProductScreenState extends State<ProductScreen> {
               const SizedBox(height: 15),
               Expanded(
                   child: Text(
-                Provider.of<ProviderData>(context)
-                    .productList[productData!['index']]
-                    .productDesc,
+                productCategory[index].name,
                 textAlign: TextAlign.end,
                 style: const TextStyle(fontSize: 20, color: Colors.grey),
               )),
@@ -152,11 +142,12 @@ class _ProductScreenState extends State<ProductScreen> {
                         });
 
                         BoughtProduct boughtProduct = BoughtProduct(
-                            isLocal: false,
-                            amount: 1,
-                            productName: productData!['productName'],
-                            productPrice: productData!['productPrice'],
-                            productImage: productData!['productImage']);
+                          isLocal: true,
+                          amount: 1,
+                          productName: productCategory[index].name,
+                          productPrice: productCategory[index].price.toString(),
+                          localProductImage: productCategory[index].image,
+                        );
                         isFavorite
                             ? provider.addProduct(boughtProduct)
                             : provider.boughtProducts.contains(boughtProduct)

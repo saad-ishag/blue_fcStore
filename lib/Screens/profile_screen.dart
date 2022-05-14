@@ -5,6 +5,7 @@ import '../Screens//tools/card.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({Key? key}) : super(key: key);
+  static const String id = 'profile screen';
 
   @override
   Widget build(BuildContext context) {
@@ -13,7 +14,7 @@ class ProfileScreen extends StatelessWidget {
       body: SafeArea(
         child: Container(
           margin:  EdgeInsets.only(left: 20.w, right: 20.w, top: 20.h,bottom: 400.h),
-          padding:  EdgeInsets.only(top: 140.h),
+          padding:  EdgeInsets.only(top: 60.h),
           decoration:  BoxDecoration(
             borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(20.r),
@@ -24,10 +25,12 @@ class ProfileScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
             children:  [
-               CircleAvatar(
+               Text('only UI screen ',style: TextStyle(color: Colors.grey.withOpacity(.7)),),
+              SizedBox(height: 40.h,),
+              CircleAvatar(
                 backgroundImage: const AssetImage('images/IMG_20210422_145802789.jpg'),
                 backgroundColor: Colors.white,
-                radius: 60.r,
+                radius: 70.r,
               ),
               SizedBox(
                 height: 10.h,
@@ -44,7 +47,7 @@ class ProfileScreen extends StatelessWidget {
                 ],
               ),
               Text(
-                '#1 THIS WEEK | 1520 XP',
+                '#1 THIS WEEK | 1500 XP',
                 style:  TextStyle(fontSize: 24.sp,color: Colors.white),
               ),
                SizedBox(
@@ -98,6 +101,8 @@ class ProfileScreen extends StatelessWidget {
                                   ],
                                 ),
                               ),
+                             // const Text('only UI screen ',style: TextStyle(color: Colors.grey),),
+
                             ],
                           ),
                         ),
@@ -105,6 +110,8 @@ class ProfileScreen extends StatelessWidget {
                     ]
                 ),
               ),
+             // const Text('only UI screen ',style: TextStyle(color: Colors.grey),),
+
             ],
           ),
         ),

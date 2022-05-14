@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 class RoundedButton extends StatelessWidget {
 
   final IconData icon ;
-  final dynamic onPressed ;
+  final Function onPressed ;
 
    const RoundedButton({Key? key, required this.icon,required this.onPressed}) : super(key: key);
   @override
@@ -16,9 +16,11 @@ class RoundedButton extends StatelessWidget {
       shape: const CircleBorder(),
       elevation: 0.0,
       child: Icon(icon,size: 16,color: Colors.white,),
-      onPressed:
-        onPressed,
-      //when using onPressed as Function it doesn't work ??
+      onPressed:() {
+        onPressed();
+        //when using onPressed as Function it doesn't work ??
+        // the whole idea is the parenthesis after the function name ( functionName(); )
+      }
     );
   }
 }
